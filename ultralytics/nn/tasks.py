@@ -59,6 +59,9 @@ class BaseModel(nn.Module):
             if visualize:
                 LOGGER.info('visualize feature not yet supported')
                 # TODO: feature_visualization(x, m.type, m.i, save_dir=visualize)
+                
+        if self.export_hook is not None:
+            x = self.export_hook(x)
         return x
 
     def _profile_one_layer(self, m, x, dt):
@@ -175,7 +178,8 @@ class DetectionModel(BaseModel):
         self.model, self.save = parse_model(deepcopy(self.yaml), ch=ch, verbose=verbose)  # model, savelist
         self.names = {i: f'{i}' for i in range(self.yaml['nc'])}  # default names dict
         self.inplace = self.yaml.get('inplace', True)
-
+        self.export_hook = None
+        
         # Build strides
         m = self.model[-1]  # Detect()
         if isinstance(m, (Detect, Segment)):
