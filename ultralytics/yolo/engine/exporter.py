@@ -162,8 +162,6 @@ class Exporter:
 
         # Checks
         model.names = check_class_names(model.names)
-        # if self.args.batch == model.args['batch_size']:  # user has not modified training batch_size
-        self.args.batch = 1
         self.imgsz = check_imgsz(self.args.imgsz, stride=model.stride, min_dim=2)  # check image size
         if model.task == 'classify':
             self.args.nms = self.args.agnostic_nms = False
@@ -289,7 +287,8 @@ class Exporter:
         LOGGER.info(f'\n{prefix} starting export with onnx {onnx.__version__}...')
         f = str(self.file.with_suffix('.onnx'))
 
-        output_names = ['output0', 'output1'] if isinstance(self.model, SegmentationModel) else ['output0']
+        output_names = ['output', 'proto'] if isinstance(self.model, SegmentationModel) else ['output0']
+
         dynamic = self.args.dynamic
         if dynamic:
             dynamic = {'images': {0: 'batch', 2: 'height', 3: 'width'}}  # shape(1,3,640,640)
